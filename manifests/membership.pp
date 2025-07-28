@@ -36,7 +36,6 @@ define groupmember::membership (
   Enum['present', 'absent'] $ensure = 'present',
   Boolean $exclusive = false,
 ) {
-
   # Ensure the group exists before managing membership
   group { $group_name:
     ensure => present,
@@ -70,7 +69,7 @@ define groupmember::membership (
         '",
         require => Group[$group_name],
         # Only run if there are users to potentially remove
-        onlyif  => "/usr/bin/getent group ${group_name} | /bin/grep -q ':'",
+        onlyif  => "/usr/bin/getent group ${group_name} | /bin/grep -v -q ${members.join(' ')}",
       }
     }
   } else {
