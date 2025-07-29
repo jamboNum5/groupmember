@@ -51,7 +51,6 @@ define groupmember::membership (
         onlyif  => "/usr/bin/getent passwd ${username}",
       }
     }
-
     # If exclusive mode is enabled, remove users not in the members list
     if $exclusive {
       # Get current group members and remove those not in our list
@@ -68,8 +67,8 @@ define groupmember::membership (
           done
         '",
         require => Group[$group_name],
-        # Only run if there are users to potentially remove
-        onlyif  => "/usr/bin/getent group ${group_name} | /bin/grep -v -q ${members.join(' ')}",
+        # Compare user list in ${members.join(',') against group in /etc/group. If it's not a match, update the group.
+        unless  => "/usr/bin/getent group ${group_name} | cut -d':' -f4 | /bin/grep -q -E \^${members.join(',')}\$",
       }
     }
   } else {
